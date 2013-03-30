@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>online 运营平台</title>
+<link rel="stylesheet" type="text/css" href="scripts/css/login.css" />
+<script language="javascript">
+// TODO
+<!--
+function InputCheck(LoginForm){
+	//if(LoginForm.regist.value!=""){
+		if(LoginForm.username.value==""){
+			alert("输入用户名");
+			LoginForm.username.focus();
+			return(false);
+		}
+		if(LoginForm.password.value==""){
+			alert("输入密码");
+			LoginForm.password.focus();
+			return(false);
+		}
+	//}
+	//else{
+	//	return(true);
+	//}
+}
+//-->
+</script>
+</head>
+
+<body>
+	<div>
+		<fieldset>
+			<legend>online 运营平台</legend>
+			<!--<form name="LoginForm" method="post" action="jump.php" onSubmit="return InputCheck(this)">-->
+			<form name="LoginForm" method="post" action="jump.php">
+				<p>
+					<label for="username" class="label">用户名:</label>
+					<input id="username" name="username" type="text" class="input" />
+				</p>
+				<p>
+					<label for="password" class="label">密码:</label>
+					<input id="password" name="password" type="password" class="input" />
+				</p>
+				<p>
+					<input type="submit" name="submit" value="确定" class="left" />
+					<input type="submit" name="regist" value="注册" />
+				</p>
+			</form>
+		</fieldset>
+	</div>
+</body>
+</html>

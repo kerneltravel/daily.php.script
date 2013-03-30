@@ -1,0 +1,13 @@
+body{
+	font-family: courier;
+}
+
+fieldset{
+	width: 300px;
+	margin: 0 auto;
+}
+
+legend{
+	font-weight: bold;
+	font-size: 14px;
+}

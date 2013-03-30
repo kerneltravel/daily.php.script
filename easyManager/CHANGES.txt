@@ -1,0 +1,11 @@
++------------------------------------------------------------------------------------------------+
+| 2012-7-12 20:34:52                                                                   ver 0.1.0 |
++------------------------------------------------------------------------------------------------+
+| STATE | FILENAME        | INTRODUCTION                                                         |
++-------+-----------------+----------------------------------------------------------------------+
+| new   | file_manage.php | main script, calls for check.php, create.php, rename.php, delete.php |
+| new   | check.php       | function f_check(). Check if FILENAME exists.                        |
+| new   | create.php      | function f_create(). Create FILENAME if it doesn't exist.            |
+| new   | rename.php      | function f_rename(). Rename FILENAME if it exists.                   |
+| new   | delete.php      | function f_delete(). Delete FILENAME if it exists.                   |
++-------+-----------------+----------------------------------------------------------------------+

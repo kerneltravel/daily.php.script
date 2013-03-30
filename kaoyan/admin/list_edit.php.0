@@ -1,0 +1,76 @@
+<html>
+<head>
+<title>2014题库系统</title>
+<link rel="stylesheet" type="text/css" href="../scripts/css/index.css" />
+<script src="../scripts/js/jquery.js" type="text/javascript" language="javascript"></script>
+<script type="text/javascript" language="javascript">
+	setInterval(
+		function(){
+			$("#header").load(location.href+" #header");
+	},1000);
+</script>
+</head>
+
+<body>
+	<?
+		require_once('include/conn.php');
+		require_once('include/class/function.class.php');
+	?>
+	<div id="header">
+		<?showTime();?>
+	</div>
+	<div id="navbar">
+		<?showAdminSideBar();?>
+	</div>
+	<div id="main">
+		搜索[TODO]:<input type="text" name="search" /><br />
+		添加:
+		<a href="add_xz.php" target="_blank">[选择题]</a>
+		<a href="add_tk.php" target="_blank">[填空题]</a>
+		<a href="add_jd.php" target="_blank">[简答题]</a>
+		<table width="90%" border="1" align="center" cellspacing="0" cellpadding="1">
+			<!--<tr>
+				<td>[添加]</td>
+				<td colspan="2"><a href="add_xz.php" target="_blank">[选择题]</a></td>
+				<td colspan="2"><a href="add_tk.php" target="_blank">[填空题]</a></td>
+				<td colspan="2"><a href="add_jd.php" target="_blank">[简答题]</a></td>
+			</tr>-->
+			<tr>
+				<td width="7%"></td>
+				<td width="5%">题号</td>
+				<td width="5%">状态</td>
+				<!--<td>内容</td>-->
+				<td>标题</td>
+				<td>答案</td>
+				<td width="7%">类型</td>
+				<td>标签1</td>
+			</tr>
+
+		<?
+			//$sql="SELECT * FROM subject WHERE active='1' ORDER BY id ASC LIMIT 0,10";
+			$sql="SELECT * FROM `subject` ORDER BY id ASC LIMIT 0,10";
+			$query=mysql_query($sql);
+			$array=array();
+
+			while($assoc=mysql_fetch_assoc($query)){
+				array_push($array,$assoc);
+			}
+			foreach($array as $key){
+		?>
+				<tr>
+				<td><a href="edit.php?id=<?echo $key['id'];?>" target="_target">[编辑]</a></td>
+				<td><?echo $key['id'];?></td>
+				<td><?echo $key['active'];?></td>
+				<!--<td><?echo $key['content'];?></td>-->
+				<td><?echo $key['title'];?></td>
+				<td><?echo $key['answer'];?></td>
+				<td><?echo $key['type'];?></td>
+				<td><?echo $key['tag1'];?></td>
+			</tr>
+		<?
+			}
+		?>
+		</table>
+	</div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<html>
+<head>
+<title>2014题库系统</title>
+<link rel="stylesheet" type="text/css" href="../scripts/css/index.css" />
+<script src="../scripts/js/jquery.js" type="text/javascript" language="javascript"></script>
+<script type="text/javascript" language="javascript">
+	setInterval(
+		function(){
+			$("#header").load(location.href+" #header");
+	},1000);
+</script>
+</head>
+
+<body>
+	<?
+		require_once('include/conn.php');
+		require_once('include/class/function.class.php');
+	?>
+	<div id="header">
+		<?
+			showTime();
+		?>
+	</div>
+	<div id="navbar">
+		<?
+			showAdminSideBar();
+		?>
+	</div>
+	<div id="main">
+		<form action="" method="post" name="list_add">
+			<input type="submit" name="xuanze" value="选择题" />
+			<input type="submit" name="tiankong" value="填空题[TODO]" />
+			<input type="submit" name="jianda" value="简答题" />
+		</form>
+	</div>
+	<?
+		if($_POST['xuanze']){
+			header("Location: add_xz.php");
+		}
+		else if($_POST['tiankong']){
+			header("Location: add_tk.php");
+		}
+		else if($_POST['jianda']){
+			header("Location: add_jd.php");
+		}
+	?>
+</body>
+</html>

@@ -1,0 +1,565 @@
+<?
+	require_once("include/conn.php");
+	require_once("include/class/function.class.php");
+	session_start();
+	
+	$usertype=$_SESSION['usertype'];
+	$department=$_SESSION['department'];
+	$type=pageusertype($name);
+
+	if(!isset($_SESSION['userid'])){
+		header("Location:index.html");
+		exit;
+	}
+	else{
+		if($usertype<$type){
+			header("Location:index2.php");
+			exit;
+		}
+	}
+
+	$filename=date("YmdGis");
+	header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+//	header('Content-Type: application/vnd.ms-excel');
+	header('Content-Disposition: attachment; filename='.$filename.'.xlsx');
+	header('Expires:0');
+
+	/** PHPExcel */
+	require_once("include/PHPExcel.php");
+	/** PHPExcel_IOFactory */
+	require_once("include/PHPExcel/IOFactory.php");
+
+	// Create new PHPExcel object
+	$objPHPExcel = new PHPExcel();
+
+	// simplify
+	$objProSheet=$objPHPExcel->getProperties();
+	$objActSheet=$objPHPExcel->getActiveSheet();
+	$objSecSheet=$objPHPExcel->getSecurity();
+
+	$objPHPExcel->createSheet();
+	$objPHPExcel->setActiveSheetIndex(0);
+
+	$objProSheet->setCreator("Jason");
+	$objProSheet->setLastModifiedBy($_SESSION['username']);
+
+	// TODO
+//	$objSecSheet->setLockWindows(true);
+//	$objSecSheet->setLockStructure(true);
+//	$objSecSheet->setWorkbookPassword('password');
+//	$objActSheet->getProtection()->setSheet(true);
+//	$objActSheet->getProtection()->setPassword('PHPExcel');
+	
+	$objActSheet->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);
+	$objActSheet->getPageSetup()->setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4);
+	$objActSheet->getHeaderFooter()->setOddFooter( '&C &P /&N');
+	$objActSheet->getDefaultStyle()->getFont()->setName('宋体');
+
+	// do1
+	// 下载所有
+	if($_POST['do1']){
+		// merge cells
+		$objActSheet->mergeCells('A1:N1');
+		$objActSheet->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objActSheet->getStyle('A1:N1')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:N1')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:N1')->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:N1')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+
+		// setHeight
+		// maybe a bug...
+		//$objActSheet->getDefaultRowDimension()->setRowHeight(20);
+		$objActSheet->getRowDimension('1')->setRowHeight(30);
+
+		// setWidth
+		$objActSheet->getColumnDimension('B')->setWidth(5);
+		$objActSheet->getColumnDimension('E')->setWidth(15);
+		$objActSheet->getColumnDimension('F')->setWidth(15);
+		$objActSheet->getColumnDimension('G')->setWidth(20);
+		$objActSheet->getColumnDimension('H')->setWidth(15);
+		$objActSheet->getColumnDimension('I')->setWidth(15);
+		$objActSheet->getColumnDimension('J')->setWidth(30);
+		$objActSheet->getColumnDimension('M')->setWidth(20);
+		$objActSheet->getColumnDimension('N')->setWidth(30);
+
+		// format cells
+		$objActSheet->getStyle('A1')->getFont()->setBold(true);
+		$objActSheet->getStyle('A1')->getFont()->setSize(20);
+
+		// setCellValue
+		//$mem=memory_get_usage()/1024;
+		$objActSheet->setCellValue('A1',iconv('gbk','utf-8','成员详细信息表'));
+		$objActSheet->setCellValue('A2',iconv('gbk','utf-8','姓名'));
+		$objActSheet->setCellValue('B2',iconv('gbk','utf-8','年龄'));
+		$objActSheet->setCellValue('C2',iconv('gbk','utf-8','生日'));
+		$objActSheet->setCellValue('D2',iconv('gbk','utf-8','性别'));
+		$objActSheet->setCellValue('E2',iconv('gbk','utf-8','邮箱'));
+		$objActSheet->setCellValue('F2',iconv('gbk','utf-8','QQ'));
+		$objActSheet->setCellValue('G2',iconv('gbk','utf-8','手机'));
+		$objActSheet->setCellValue('H2',iconv('gbk','utf-8','学号'));
+		$objActSheet->setCellValue('I2',iconv('gbk','utf-8','校区'));
+		$objActSheet->setCellValue('J2',iconv('gbk','utf-8','学院'));
+		$objActSheet->setCellValue('K2',iconv('gbk','utf-8','单位'));
+		$objActSheet->setCellValue('M2',iconv('gbk','utf-8','部门'));
+		$objActSheet->setCellValue('N2',iconv('gbk','utf-8','职务组'));
+		// for debug
+		//$objActSheet->setCellValue('O1',$mem);
+
+		$sql="SELECT * FROM user WHERE active='1' ORDER BY id";
+		$query=mysql_query($sql);
+		//$q_num=mysql_num_rows($query);
+		$array=array();
+
+		while($row=mysql_fetch_row($query)){
+			array_push($array,$row);
+		}
+
+		$i=3;
+		foreach($array as $arr){
+			//$objActSheet->getStyle('F'.$i)->getNumberFormat()->setFormatCode('0000000000');
+			$objActSheet->getStyle('H'.$i)->getNumberFormat()->setFormatCode('000000000000');
+
+			$objActSheet->setCellValue('A'.$i,iconv('gbk','utf-8',$arr[1]));
+			$objActSheet->setCellValue('B'.$i,iconv('gbk','utf-8',$arr[2]));
+			$objActSheet->setCellValue('C'.$i,iconv('gbk','utf-8',$arr[3]));
+			$objActSheet->setCellValue('D'.$i,iconv('gbk','utf-8',$arr[4]));
+			$objActSheet->setCellValue('E'.$i,iconv('gbk','utf-8',$arr[5]));
+			$objActSheet->setCellValue('F'.$i,iconv('gbk','utf-8',$arr[6]));
+			$objActSheet->setCellValue('G'.$i,iconv('gbk','utf-8',$arr[7]));
+			$objActSheet->setCellValue('H'.$i,iconv('gbk','utf-8',$arr[8]));
+			$objActSheet->setCellValue('I'.$i,iconv('gbk','utf-8',$arr[9]));
+			$objActSheet->setCellValue('J'.$i,iconv('gbk','utf-8',$arr[10]));
+			$objActSheet->setCellValue('K'.$i,iconv('gbk','utf-8',$arr[11]));
+			$objActSheet->setCellValue('L'.$i,iconv('gbk','utf-8',$arr[12]));
+			$objActSheet->setCellValue('M'.$i,iconv('gbk','utf-8',$arr[13]));
+			$objActSheet->setCellValue('N'.$i,iconv('gbk','utf-8',$arr[14]));
+		
+			// set row height in a loop
+			// for just a bug... maybe a bug
+			$objActSheet->getRowDimension($i)->setRowHeight(20);
+
+			// output the image in a loop
+			if($i%10==0){
+				$objDrawing=new PHPExcel_Worksheet_Drawing();
+				$objDrawing->setName('Logo');
+				$objDrawing->setDescription('Logo');
+				$objDrawing->setPath('images/online.png');
+				$objDrawing->setHeight(100);
+				$objDrawing->setCoordinates('E'.$i);
+				//$objDrawing->setCoordinates('I'.$i);
+				$objDrawing->setOffsetX(50);
+				//$objDrawing->setRotation(25);
+				$objDrawing->getShadow()->setVisible(true);
+				$objDrawing->setWorksheet($objActSheet);				
+			}
+			if($i%10==0){
+				$objDrawing=new PHPExcel_Worksheet_Drawing();
+				$objDrawing->setName('Logo');
+				$objDrawing->setDescription('Logo');
+				$objDrawing->setPath('images/online.png');
+				$objDrawing->setHeight(100);
+				//$objDrawing->setCoordinates('E'.$i);
+				$objDrawing->setCoordinates('I'.$i);
+				$objDrawing->setOffsetX(50);
+				//$objDrawing->setRotation(25);
+				$objDrawing->getShadow()->setVisible(true);
+				$objDrawing->setWorksheet($objActSheet);				
+			}
+
+			++$i;
+		}
+	}
+	else if($_POST['do2']){
+		// merge cells
+		$objActSheet->mergeCells('A1:I1');
+		$objActSheet->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objActSheet->getStyle('A1:I1')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:I1')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:I1')->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:I1')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+
+		// setHeight
+		//$objActSheet->getDefaultRowDimension()->setRowHeight(20);
+		//$objActSheet->getRowDimension('A1')->setRowHeight(30);
+		$objActSheet->getRowDimension('1')->setRowHeight(30);
+
+		// format cells
+		$objActSheet->getStyle('A1')->getFont()->setBold(true);
+		$objActSheet->getStyle('A1')->getFont()->setSize(20);
+
+		// setWidth
+		$objActSheet->getColumnDimension('B')->setWidth(5);
+		$objActSheet->getColumnDimension('D')->setWidth(25);
+		$objActSheet->getColumnDimension('E')->setWidth(10);
+		$objActSheet->getColumnDimension('F')->setWidth(10);
+		$objActSheet->getColumnDimension('G')->setWidth(15);
+		$objActSheet->getColumnDimension('I')->setWidth(15);
+
+		// set title
+		$objActSheet->setCellValue('A1',iconv('gbk','utf-8','成员通讯录'));
+		$objActSheet->setCellValue('A2',iconv('gbk','utf-8','姓名'));
+		$objActSheet->setCellValue('B2',iconv('gbk','utf-8','性别'));
+		$objActSheet->setCellValue('C2',iconv('gbk','utf-8','年级'));
+		$objActSheet->setCellValue('D2',iconv('gbk','utf-8','学院'));
+		$objActSheet->setCellValue('E2',iconv('gbk','utf-8','职务'));
+		$objActSheet->setCellValue('F2',iconv('gbk','utf-8','QQ'));
+		$objActSheet->setCellValue('G2',iconv('gbk','utf-8','手机'));
+		$objActSheet->setCellValue('H2',iconv('gbk','utf-8','内线'));
+		$objActSheet->setCellValue('I2',iconv('gbk','utf-8','邮箱'));
+
+		$sql="SELECT * FROM user WHERE active='1' ORDER BY id";
+		$query=mysql_query($sql);
+		//$q_num=mysql_num_rows($query);
+		$array=array();
+
+		while($assoc=mysql_fetch_assoc($query)){
+			array_push($array,$assoc);
+		}
+
+		$i=3;
+		foreach($array as $arr){
+			//$objActSheet->getStyle('F'.$i)->getNumberFormat()->setFormatCode('0000000000');
+
+			$objActSheet->setCellValue('A'.$i,iconv('gbk','utf-8',$arr['name']));
+			$objActSheet->setCellValue('B'.$i,iconv('gbk','utf-8',$arr['sex']));
+			// 年级
+			//$objActSheet->setCellValue('C'.$i,iconv('gbk','utf-8',$arr['']));
+			$objActSheet->setCellValue('D'.$i,iconv('gbk','utf-8',$arr['college']));
+			$objActSheet->setCellValue('E'.$i,iconv('gbk','utf-8',$arr['group']));
+			$objActSheet->setCellValue('F'.$i,iconv('gbk','utf-8',$arr['qq']));
+			$objActSheet->setCellValue('G'.$i,iconv('gbk','utf-8',$arr['mobile']));
+			// 内线
+			//$objActSheet->setCellValue('H'.$i,iconv('gbk','utf-8',$arr['']));
+			$objActSheet->setCellValue('I'.$i,iconv('gbk','utf-8',$arr['email']));
+
+			// set row height
+			$objActSheet->getRowDimension($i)->setRowHeight(20);
+
+			// insert image
+			if($i%10==0){
+				$objDrawing=new PHPExcel_Worksheet_Drawing();
+				$objDrawing->setName('Logo');
+				$objDrawing->setDescription('Logo');
+				$objDrawing->setPath('images/online.png');
+				$objDrawing->setHeight(100);
+				$objDrawing->setCoordinates('E'.$i);
+				$objDrawing->setOffsetX(50);
+				//$objDrawing->setRotation(25);
+				$objDrawing->getShadow()->setVisible(true);
+				$objDrawing->setWorksheet($objActSheet);
+			}
+			++$i;
+		}
+	}
+	else if($_POST['do3']){
+		// merge cells
+		$objActSheet->mergeCells('A1:N1');
+		$objActSheet->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objActSheet->getStyle('A1:N1')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:N1')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:N1')->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:N1')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+
+		// setHeight
+		// maybe a bug...
+		//$objActSheet->getDefaultRowDimension()->setRowHeight(20);
+		$objActSheet->getRowDimension('1')->setRowHeight(30);
+
+		// setWidth
+		$objActSheet->getColumnDimension('B')->setWidth(5);
+		$objActSheet->getColumnDimension('E')->setWidth(15);
+		$objActSheet->getColumnDimension('F')->setWidth(15);
+		$objActSheet->getColumnDimension('G')->setWidth(20);
+		$objActSheet->getColumnDimension('H')->setWidth(15);
+		$objActSheet->getColumnDimension('I')->setWidth(15);
+		$objActSheet->getColumnDimension('J')->setWidth(30);
+		$objActSheet->getColumnDimension('M')->setWidth(20);
+		$objActSheet->getColumnDimension('N')->setWidth(30);
+
+		// format cells
+		$objActSheet->getStyle('A1')->getFont()->setBold(true);
+		$objActSheet->getStyle('A1')->getFont()->setSize(20);
+
+		// setCellValue
+		//$mem=memory_get_usage()/1024;
+		$objActSheet->setCellValue('A1',iconv('gbk','utf-8','成员详细信息表'));
+		$objActSheet->setCellValue('A2',iconv('gbk','utf-8','姓名'));
+		$objActSheet->setCellValue('B2',iconv('gbk','utf-8','年龄'));
+		$objActSheet->setCellValue('C2',iconv('gbk','utf-8','生日'));
+		$objActSheet->setCellValue('D2',iconv('gbk','utf-8','性别'));
+		$objActSheet->setCellValue('E2',iconv('gbk','utf-8','邮箱'));
+		$objActSheet->setCellValue('F2',iconv('gbk','utf-8','QQ'));
+		$objActSheet->setCellValue('G2',iconv('gbk','utf-8','手机'));
+		$objActSheet->setCellValue('H2',iconv('gbk','utf-8','学号'));
+		$objActSheet->setCellValue('I2',iconv('gbk','utf-8','校区'));
+		$objActSheet->setCellValue('J2',iconv('gbk','utf-8','学院'));
+		$objActSheet->setCellValue('K2',iconv('gbk','utf-8','单位'));
+		$objActSheet->setCellValue('M2',iconv('gbk','utf-8','部门'));
+		$objActSheet->setCellValue('N2',iconv('gbk','utf-8','职务组'));
+		// for debug
+		//$objActSheet->setCellValue('O1',$mem);
+
+		$sql="SELECT * FROM user WHERE active='1' and department='$department' ORDER BY id";
+		$query=mysql_query($sql);
+		//$q_num=mysql_num_rows($query);
+		$array=array();
+
+		while($row=mysql_fetch_row($query)){
+			array_push($array,$row);
+		}
+
+		$i=3;
+		foreach($array as $arr){
+			//$objActSheet->getStyle('F'.$i)->getNumberFormat()->setFormatCode('0000000000');
+			$objActSheet->getStyle('H'.$i)->getNumberFormat()->setFormatCode('000000000000');
+
+			$objActSheet->setCellValue('A'.$i,iconv('gbk','utf-8',$arr[1]));
+			$objActSheet->setCellValue('B'.$i,iconv('gbk','utf-8',$arr[2]));
+			$objActSheet->setCellValue('C'.$i,iconv('gbk','utf-8',$arr[3]));
+			$objActSheet->setCellValue('D'.$i,iconv('gbk','utf-8',$arr[4]));
+			$objActSheet->setCellValue('E'.$i,iconv('gbk','utf-8',$arr[5]));
+			$objActSheet->setCellValue('F'.$i,iconv('gbk','utf-8',$arr[6]));
+			$objActSheet->setCellValue('G'.$i,iconv('gbk','utf-8',$arr[7]));
+			$objActSheet->setCellValue('H'.$i,iconv('gbk','utf-8',$arr[8]));
+			$objActSheet->setCellValue('I'.$i,iconv('gbk','utf-8',$arr[9]));
+			$objActSheet->setCellValue('J'.$i,iconv('gbk','utf-8',$arr[10]));
+			$objActSheet->setCellValue('K'.$i,iconv('gbk','utf-8',$arr[11]));
+			$objActSheet->setCellValue('L'.$i,iconv('gbk','utf-8',$arr[12]));
+			$objActSheet->setCellValue('M'.$i,iconv('gbk','utf-8',$arr[13]));
+			$objActSheet->setCellValue('N'.$i,iconv('gbk','utf-8',$arr[14]));
+		
+			// set row height in a loop
+			// for just a bug... maybe a bug
+			$objActSheet->getRowDimension($i)->setRowHeight(20);
+
+			// output the image in a loop
+			if($i%10==0){
+				$objDrawing=new PHPExcel_Worksheet_Drawing();
+				$objDrawing->setName('Logo');
+				$objDrawing->setDescription('Logo');
+				$objDrawing->setPath('images/online.png');
+				$objDrawing->setHeight(100);
+				$objDrawing->setCoordinates('E'.$i);
+				//$objDrawing->setCoordinates('I'.$i);
+				$objDrawing->setOffsetX(50);
+				//$objDrawing->setRotation(25);
+				$objDrawing->getShadow()->setVisible(true);
+				$objDrawing->setWorksheet($objActSheet);				
+			}
+			if($i%10==0){
+				$objDrawing=new PHPExcel_Worksheet_Drawing();
+				$objDrawing->setName('Logo');
+				$objDrawing->setDescription('Logo');
+				$objDrawing->setPath('images/online.png');
+				$objDrawing->setHeight(100);
+				//$objDrawing->setCoordinates('E'.$i);
+				$objDrawing->setCoordinates('I'.$i);
+				$objDrawing->setOffsetX(50);
+				//$objDrawing->setRotation(25);
+				$objDrawing->getShadow()->setVisible(true);
+				$objDrawing->setWorksheet($objActSheet);				
+			}
+
+			++$i;
+		}
+	}
+	else if($_POST['do4']){
+		// merge cells
+		$objActSheet->mergeCells('A1:I1');
+		$objActSheet->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objActSheet->getStyle('A1:I1')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:I1')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:I1')->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:I1')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+
+		// setHeight
+		//$objActSheet->getDefaultRowDimension()->setRowHeight(20);
+		//$objActSheet->getRowDimension('A1')->setRowHeight(30);
+		$objActSheet->getRowDimension('1')->setRowHeight(30);
+
+		// format cells
+		$objActSheet->getStyle('A1')->getFont()->setBold(true);
+		$objActSheet->getStyle('A1')->getFont()->setSize(20);
+
+		// setWidth
+		$objActSheet->getColumnDimension('B')->setWidth(5);
+		$objActSheet->getColumnDimension('D')->setWidth(25);
+		$objActSheet->getColumnDimension('E')->setWidth(10);
+		$objActSheet->getColumnDimension('F')->setWidth(10);
+		$objActSheet->getColumnDimension('G')->setWidth(15);
+		$objActSheet->getColumnDimension('I')->setWidth(15);
+
+		// set title
+		$objActSheet->setCellValue('A1',iconv('gbk','utf-8','成员通讯录'));
+		$objActSheet->setCellValue('A2',iconv('gbk','utf-8','姓名'));
+		$objActSheet->setCellValue('B2',iconv('gbk','utf-8','性别'));
+		$objActSheet->setCellValue('C2',iconv('gbk','utf-8','年级'));
+		$objActSheet->setCellValue('D2',iconv('gbk','utf-8','学院'));
+		$objActSheet->setCellValue('E2',iconv('gbk','utf-8','职务'));
+		$objActSheet->setCellValue('F2',iconv('gbk','utf-8','QQ'));
+		$objActSheet->setCellValue('G2',iconv('gbk','utf-8','手机'));
+		$objActSheet->setCellValue('H2',iconv('gbk','utf-8','内线'));
+		$objActSheet->setCellValue('I2',iconv('gbk','utf-8','邮箱'));
+
+		$sql="SELECT * FROM user WHERE active='1' and department='$department' ORDER BY id";
+		$query=mysql_query($sql);
+		//$q_num=mysql_num_rows($query);
+		$array=array();
+
+		while($assoc=mysql_fetch_assoc($query)){
+			array_push($array,$assoc);
+		}
+
+		$i=3;
+		foreach($array as $arr){
+			//$objActSheet->getStyle('F'.$i)->getNumberFormat()->setFormatCode('0000000000');
+
+			$objActSheet->setCellValue('A'.$i,iconv('gbk','utf-8',$arr['name']));
+			$objActSheet->setCellValue('B'.$i,iconv('gbk','utf-8',$arr['sex']));
+			// 年级
+			//$objActSheet->setCellValue('C'.$i,iconv('gbk','utf-8',$arr['']));
+			$objActSheet->setCellValue('D'.$i,iconv('gbk','utf-8',$arr['college']));
+			$objActSheet->setCellValue('E'.$i,iconv('gbk','utf-8',$arr['group']));
+			$objActSheet->setCellValue('F'.$i,iconv('gbk','utf-8',$arr['qq']));
+			$objActSheet->setCellValue('G'.$i,iconv('gbk','utf-8',$arr['mobile']));
+			// 内线
+			//$objActSheet->setCellValue('H'.$i,iconv('gbk','utf-8',$arr['']));
+			$objActSheet->setCellValue('I'.$i,iconv('gbk','utf-8',$arr['email']));
+
+			// set row height
+			$objActSheet->getRowDimension($i)->setRowHeight(20);
+
+			// insert image
+			if($i%10==0){
+				$objDrawing=new PHPExcel_Worksheet_Drawing();
+				$objDrawing->setName('Logo');
+				$objDrawing->setDescription('Logo');
+				$objDrawing->setPath('images/online.png');
+				$objDrawing->setHeight(100);
+				$objDrawing->setCoordinates('E'.$i);
+				$objDrawing->setOffsetX(50);
+				//$objDrawing->setRotation(25);
+				$objDrawing->getShadow()->setVisible(true);
+				$objDrawing->setWorksheet($objActSheet);
+			}
+			++$i;
+		}
+	}
+	else if($_POST['search']){
+		$item=$_POST['search'];
+
+		// merge cells
+		$objActSheet->mergeCells('A1:N1');
+		$objActSheet->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objActSheet->getStyle('A1:N1')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:N1')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:N1')->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objActSheet->getStyle('A1:N1')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+
+		// setHeight
+		// maybe a bug...
+		//$objActSheet->getDefaultRowDimension()->setRowHeight(20);
+		$objActSheet->getRowDimension('1')->setRowHeight(30);
+
+		// setWidth
+		$objActSheet->getColumnDimension('B')->setWidth(5);
+		$objActSheet->getColumnDimension('E')->setWidth(15);
+		$objActSheet->getColumnDimension('F')->setWidth(15);
+		$objActSheet->getColumnDimension('G')->setWidth(20);
+		$objActSheet->getColumnDimension('H')->setWidth(15);
+		$objActSheet->getColumnDimension('I')->setWidth(15);
+		$objActSheet->getColumnDimension('J')->setWidth(30);
+		$objActSheet->getColumnDimension('M')->setWidth(20);
+		$objActSheet->getColumnDimension('N')->setWidth(30);
+
+		// format cells
+		$objActSheet->getStyle('A1')->getFont()->setBold(true);
+		$objActSheet->getStyle('A1')->getFont()->setSize(20);
+
+		// setCellValue
+		//$mem=memory_get_usage()/1024;
+		$objActSheet->setCellValue('A1',iconv('gbk','utf-8','成员详细信息表'));
+		$objActSheet->setCellValue('A2',iconv('gbk','utf-8','姓名'));
+		$objActSheet->setCellValue('B2',iconv('gbk','utf-8','年龄'));
+		$objActSheet->setCellValue('C2',iconv('gbk','utf-8','生日'));
+		$objActSheet->setCellValue('D2',iconv('gbk','utf-8','性别'));
+		$objActSheet->setCellValue('E2',iconv('gbk','utf-8','邮箱'));
+		$objActSheet->setCellValue('F2',iconv('gbk','utf-8','QQ'));
+		$objActSheet->setCellValue('G2',iconv('gbk','utf-8','手机'));
+		$objActSheet->setCellValue('H2',iconv('gbk','utf-8','学号'));
+		$objActSheet->setCellValue('I2',iconv('gbk','utf-8','校区'));
+		$objActSheet->setCellValue('J2',iconv('gbk','utf-8','学院'));
+		$objActSheet->setCellValue('K2',iconv('gbk','utf-8','单位'));
+		$objActSheet->setCellValue('M2',iconv('gbk','utf-8','部门'));
+		$objActSheet->setCellValue('N2',iconv('gbk','utf-8','职务组'));
+		// for debug
+		//$objActSheet->setCellValue('O1',$mem);
+
+		$query=searchDownload($item);
+
+		//$q_num=mysql_num_rows($query);
+		$array=array();
+
+		while($row=mysql_fetch_row($query)){
+			array_push($array,$row);
+		}
+
+		$i=3;
+		foreach($array as $arr){
+			//$objActSheet->getStyle('F'.$i)->getNumberFormat()->setFormatCode('0000000000');
+			$objActSheet->getStyle('H'.$i)->getNumberFormat()->setFormatCode('000000000000');
+
+			$objActSheet->setCellValue('A'.$i,iconv('gbk','utf-8',$arr[1]));
+			$objActSheet->setCellValue('B'.$i,iconv('gbk','utf-8',$arr[2]));
+			$objActSheet->setCellValue('C'.$i,iconv('gbk','utf-8',$arr[3]));
+			$objActSheet->setCellValue('D'.$i,iconv('gbk','utf-8',$arr[4]));
+			$objActSheet->setCellValue('E'.$i,iconv('gbk','utf-8',$arr[5]));
+			$objActSheet->setCellValue('F'.$i,iconv('gbk','utf-8',$arr[6]));
+			$objActSheet->setCellValue('G'.$i,iconv('gbk','utf-8',$arr[7]));
+			$objActSheet->setCellValue('H'.$i,iconv('gbk','utf-8',$arr[8]));
+			$objActSheet->setCellValue('I'.$i,iconv('gbk','utf-8',$arr[9]));
+			$objActSheet->setCellValue('J'.$i,iconv('gbk','utf-8',$arr[10]));
+			$objActSheet->setCellValue('K'.$i,iconv('gbk','utf-8',$arr[11]));
+			$objActSheet->setCellValue('L'.$i,iconv('gbk','utf-8',$arr[12]));
+			$objActSheet->setCellValue('M'.$i,iconv('gbk','utf-8',$arr[13]));
+			$objActSheet->setCellValue('N'.$i,iconv('gbk','utf-8',$arr[14]));
+		
+			// set row height in a loop
+			// for just a bug... maybe a bug
+			$objActSheet->getRowDimension($i)->setRowHeight(20);
+
+			// output the image in a loop
+			if($i%10==0){
+				$objDrawing=new PHPExcel_Worksheet_Drawing();
+				$objDrawing->setName('Logo');
+				$objDrawing->setDescription('Logo');
+				$objDrawing->setPath('images/online.png');
+				$objDrawing->setHeight(100);
+				$objDrawing->setCoordinates('E'.$i);
+				//$objDrawing->setCoordinates('I'.$i);
+				$objDrawing->setOffsetX(50);
+				//$objDrawing->setRotation(25);
+				$objDrawing->getShadow()->setVisible(true);
+				$objDrawing->setWorksheet($objActSheet);				
+			}
+			if($i%10==0){
+				$objDrawing=new PHPExcel_Worksheet_Drawing();
+				$objDrawing->setName('Logo');
+				$objDrawing->setDescription('Logo');
+				$objDrawing->setPath('images/online.png');
+				$objDrawing->setHeight(100);
+				//$objDrawing->setCoordinates('E'.$i);
+				$objDrawing->setCoordinates('I'.$i);
+				$objDrawing->setOffsetX(50);
+				//$objDrawing->setRotation(25);
+				$objDrawing->getShadow()->setVisible(true);
+				$objDrawing->setWorksheet($objActSheet);				
+			}
+
+			++$i;
+		}
+	}
+
+	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel2007');
+	$objWriter->save("php://output");
+?>
